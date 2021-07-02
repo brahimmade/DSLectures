@@ -1,9 +1,9 @@
 # OnlineLearning
 Collection of Online Courses / Resources 
 
-### Applied Mathematics
+## Applied Mathematics
 
-## Computational Linear Algebra for Coders (fast.ai)
+### Computational Linear Algebra for Coders (fast.ai)
 - Course Website: https://github.com/fastai/numerical-linear-algebra/blob/master/README.md
 - Summary: Numerical linear algebra course, to our knowledge, to be completely centered around practical applications and to use cutting edge algorithms and tools, including PyTorch, Numba, and randomized SVD
 
