@@ -4,7 +4,7 @@ from tqdm import tqdm
 import logging
 
 
-class TD_Agent:
+class Linear_Approximation_Agent:
     def __init__(self, environment, n0, mlambda, gamma):
         self.n0 = float(n0)
         self.env = environment

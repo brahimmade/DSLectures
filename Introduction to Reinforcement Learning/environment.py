@@ -24,6 +24,13 @@ class State:
     def player_idx(self):
         return self.player - 1
 
+    dealer_space = [(1,4),(4,7),(7,10)]
+    dealer_space = [(1,6),(4,9),(7,12),(10,15),(13,18),(16,21)]
+
+    def dealer_idx_approx(self):
+        return None
+    def player_idx_approx(self):
+        return None
 
 class DealCard:
     def __init__(self, force_black=False):
@@ -53,9 +60,9 @@ class Actions(Enum):
 
 
 class Environment:
-    def __init__(self):
-        self.player_values_count = 21
-        self.dealer_values_count = 10
+    def __init__(self, is_full=True):
+        self.player_values_count = 21 if is_full else 6
+        self.dealer_values_count = 10 if is_full else 3
         self.actions_count = 2  # number of possible actions
 
     def get_start_state(self):

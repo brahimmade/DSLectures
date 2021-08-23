@@ -56,10 +56,10 @@ class MC_Agent:
             return action
             
 
-    def train(self, iterations):
+    def train(self, iterations, disable_logging = False):
 
         # Loop episodes
-        for episode in tqdm(range(iterations)):
+        for episode in tqdm(range(iterations), disable=disable_logging):
             episode_pairs = []
 
             # get initial state for current episode
@@ -98,7 +98,7 @@ class MC_Agent:
         self.iterations += iterations
 
         # Win probability
-        print(float(self.count_wins) / self.iterations * 100)
+        #print(float(self.count_wins) / self.iterations * 100)
 
         # Derive value function
         for d in range(self.env.dealer_values_count):
