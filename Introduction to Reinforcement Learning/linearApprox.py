@@ -3,6 +3,7 @@ from environment import *
 from tqdm import tqdm
 import logging
 
+#make feature a vector
 
 class Linear_Approximation_Agent:
     def __init__(self, environment, n0, mlambda, gamma):
@@ -11,31 +12,20 @@ class Linear_Approximation_Agent:
         self.mlambda = mlambda
         self.gamma = gamma
 
-        # N(s) is the number of times that state s has been visited
-        # N(s,a) is the number of times that action a has been selected from state s.
-        self.N = np.zeros(
-            (
-                self.env.dealer_values_count,
-                self.env.player_values_count,
-                self.env.actions_count,
-            )
+        self.dealer_features = [[1, 4], [4, 7], [7, 10]]
+        self.player_features = [[1, 6], [4, 9], [7, 12], [10, 15], [13, 18], [16, 21]]
+
+        self.number_of_parameters = (
+            len(self.dealer_features) * len(self.player_features) * 2.0
         )
 
-        self.Q = np.zeros(
-            (
-                self.env.dealer_values_count,
-                self.env.player_values_count,
-                self.env.actions_count,
-            )
-        )
-        # Eligibility Trace
-        self.E = np.zeros(
-            (
-                self.env.dealer_values_count,
-                self.env.player_values_count,
-                self.env.actions_count,
-            )
-        )
+        self.theta = np.random.rand(self.number_of_parameters) * 0.1
+
+        self.phi = np.zeros(self.number_of_parameters)
+
+        self.Q = np.zeros(self.number_of_parameters)
+
+        self.E = np.zeros(self.number_of_parameters)
 
         # Initialise the value function to zero.
         self.V = np.zeros((self.env.dealer_values_count, self.env.player_values_count))
@@ -43,22 +33,39 @@ class Linear_Approximation_Agent:
         self.count_wins = 0
         self.iterations = 0
 
+    def compute_phi(self, s, a):
+        d_sum = s.dealer
+        a_sum = s.player
+        
+        phi = np.zeros((3, 6, 2))
+        
+        d_features = np.array([x[0] <= d_sum <= x[1] for x in self.dealer_features])
+        a_features = np.array([x[0] <= a_sum <= x[1] for x in self.player_features])
+        
+        for i in np.where(d_features):
+            for j in np.where(a_features):
+                phi[i, j, a.value] = 1
+
+        return phi.flatten()
+
     def get_optimal_action(self, state):
         action = Actions.to_action(
-            np.argmax(self.Q[state.dealer_idx(), state.player_idx(), :])
+            np.argmax([np.dot(self.compute_phi(state, Actions.hit), self.theta), np.dot(self.compute_phi(state, Actions.stick), self.theta)])
         )
         return action
 
     # get optimal action, with epsilon exploration (epsilon dependent on number of visits to the state)
     # ε-greedy exploration strategy with εt = N0/(N0 + N(st)),
     def get_action(self, state):
-        dealer_idx = state.dealer - 1
-        player_idx = state.player - 1
+        d_features = np.array(
+                    [x[0] <= state.dealer <= x[1] for x in self.dealer_features]
+                )
 
-        n_visits = sum(self.N[dealer_idx, player_idx, :])
+        a_features = np.array(
+                    [x[0] <= state.player <= x[1] for x in self.player_features]
+                )
 
-        # epsilon = N0/(N0 + N(st))
-        curr_epsilon = self.n0 / (self.n0 + n_visits)
+        curr_epsilon = 0.05
 
         # epsilon greedy policy
         if random.random() > curr_epsilon:
@@ -69,31 +76,14 @@ class Linear_Approximation_Agent:
             action = Actions.hit if random.random() < 0.5 else Actions.stick
 
             return action
+    
+
 
     def train(self, iterations, disable_logging=False):
         # Loop episodes
         for episode in tqdm(range(iterations), disable=disable_logging):
-            """
-            Repeat for each episode
-            E(s,a) = 0
-            Initialise S, A
-            Repeat for each step of episode:
-                Take action A, observe R, S'
-                Choose A' from S' using policy derived from Q
-                delta = R +lambdaQ(S',A') - Q(S,A)
-                E(S,A) = E(S,A) + 1
-                For all s in S , a in A(s)
-                    Q(s,a) = Q(s,a) + alpha delta E(s,a)
-                    E(s,a) = gamma lambda E(s,a)
-                    S = S' , A = A'
-            """
-            self.E = np.zeros(
-                (
-                    self.env.dealer_values_count,
-                    self.env.player_values_count,
-                    self.env.actions_count,
-                )
-            )
+
+            self.E = np.zeros(self.number_of_parameters)
 
             # Initialise state and action
             s = self.env.get_start_state()
@@ -104,34 +94,28 @@ class Linear_Approximation_Agent:
             while not s.terminal:
 
                 # update visits
-                # N(s) is the number of times that state s has been visited
-                # N(s,a) is the number of times that action a has been selected from state s.
-                self.N[s.dealer - 1, s.player - 1, Actions.as_int(a)] += 1
 
                 # execute action
                 s_prime, r = self.env.step(s, a)
 
-                q = self.Q[s.dealer_idx(), s.player_idx(), Actions.as_int(a)]
+                phi = self.compute_phi(s, a)
+
+                q = np.dot(phi, self.theta)
 
                 if not s_prime.terminal:
                     # choose next action with epsilon greedy policy
                     a_prime = self.get_action(s_prime)
-                    q_next = self.Q[
-                        s_prime.dealer_idx(),
-                        s_prime.player_idx(),
-                        Actions.as_int(a_prime),
-                    ]
+                    q_next = np.dot(self.compute_phi(s_prime, a_prime),self.theta) 
                     delta = r + self.gamma * q_next - q
 
                 else:
                     delta = r - q
 
-                self.E[s.dealer_idx(), s.player_idx(), Actions.as_int(a)] += 1
+                self.E = self.E + phi
 
-                alpha = 1.0 / (
-                    self.N[s.dealer_idx(), s.player_idx(), Actions.as_int(a)]
-                )
+                alpha = 0.01
                 self.Q = self.Q + alpha * delta * self.E
+                self.theta = self.theta + self.Q
                 self.E = self.gamma * self.mlambda * self.E
 
                 s = s_prime
@@ -140,12 +124,15 @@ class Linear_Approximation_Agent:
             self.count_wins = self.count_wins + 1 if r == 1 else self.count_wins
 
         self.iterations += iterations
-        # print(float(self.count_wins) / self.iterations * 100)
+        print(float(self.count_wins) / iterations * 100)
 
         # Derive value function
-        for d in range(self.env.dealer_values_count):
-            for p in range(self.env.player_values_count):
-                self.V[d, p] = max(self.Q[d, p, :])
+        for i in range(1, self.env.dealer_values_count + 1):
+            for j in range(1, self.env.player_values_count + 1):
+                s = self.env.get_state(i,j)
+                self.V[i-1][j-1] = Actions.as_int(self.get_optimal_action(s))
+
+
 
     def plot_frame(self, ax):
         def get_stat_val(x, y):
