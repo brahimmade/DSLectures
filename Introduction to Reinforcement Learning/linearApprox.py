@@ -15,9 +15,8 @@ class Linear_Approximation_Agent:
         self.dealer_features = [[1, 4], [4, 7], [7, 10]]
         self.player_features = [[1, 6], [4, 9], [7, 12], [10, 15], [13, 18], [16, 21]]
 
-        self.number_of_parameters = (
-            len(self.dealer_features) * len(self.player_features) * 2.0
-        )
+        self.number_of_parameters = len(self.dealer_features) * len(self.player_features) * 2
+        
 
         self.theta = np.random.rand(self.number_of_parameters) * 0.1
 
@@ -34,16 +33,14 @@ class Linear_Approximation_Agent:
         self.iterations = 0
 
     def compute_phi(self, s, a):
-        d_sum = s.dealer
-        a_sum = s.player
         
-        phi = np.zeros((3, 6, 2))
+        phi = np.zeros((3, 6, 2), dtype=np.int)
         
-        d_features = np.array([x[0] <= d_sum <= x[1] for x in self.dealer_features])
-        a_features = np.array([x[0] <= a_sum <= x[1] for x in self.player_features])
+        d_features = np.array([x[0] <= s.dealer <= x[1] for x in self.dealer_features])
+        p_features = np.array([x[0] <= s.player <= x[1] for x in self.player_features])
         
         for i in np.where(d_features):
-            for j in np.where(a_features):
+            for j in np.where(p_features):
                 phi[i, j, a.value] = 1
 
         return phi.flatten()
@@ -55,15 +52,8 @@ class Linear_Approximation_Agent:
         return action
 
     # get optimal action, with epsilon exploration (epsilon dependent on number of visits to the state)
-    # ε-greedy exploration strategy with εt = N0/(N0 + N(st)),
-    def get_action(self, state):
-        d_features = np.array(
-                    [x[0] <= state.dealer <= x[1] for x in self.dealer_features]
-                )
 
-        a_features = np.array(
-                    [x[0] <= state.player <= x[1] for x in self.player_features]
-                )
+    def get_action(self, state):
 
         curr_epsilon = 0.05
 
@@ -93,8 +83,6 @@ class Linear_Approximation_Agent:
             # Repeat for each step of episode
             while not s.terminal:
 
-                # update visits
-
                 # execute action
                 s_prime, r = self.env.step(s, a)
 
@@ -105,7 +93,7 @@ class Linear_Approximation_Agent:
                 if not s_prime.terminal:
                     # choose next action with epsilon greedy policy
                     a_prime = self.get_action(s_prime)
-                    q_next = np.dot(self.compute_phi(s_prime, a_prime),self.theta) 
+                    q_next = np.dot(self.compute_phi(s_prime, a_prime),self.theta)
                     delta = r + self.gamma * q_next - q
 
                 else:
@@ -114,17 +102,18 @@ class Linear_Approximation_Agent:
                 self.E = self.E + phi
 
                 alpha = 0.01
-                self.Q = self.Q + alpha * delta * self.E
-                self.theta = self.theta + self.Q
+                
+                self.theta = self.theta + alpha * delta * self.E
                 self.E = self.gamma * self.mlambda * self.E
 
                 s = s_prime
                 a = a_prime
 
-            self.count_wins = self.count_wins + 1 if r == 1 else self.count_wins
+            self.iterations += 1
+            if r == 1:
+                self.wins += 1
 
-        self.iterations += iterations
-        print(float(self.count_wins) / iterations * 100)
+        print(float(self.count_wins) / self.iterations * 100)
 
         # Derive value function
         for i in range(1, self.env.dealer_values_count + 1):

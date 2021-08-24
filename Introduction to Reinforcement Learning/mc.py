@@ -98,7 +98,7 @@ class MC_Agent:
         self.iterations += iterations
 
         # Win probability
-        #print(float(self.count_wins) / self.iterations * 100)
+        print(float(self.count_wins) / self.iterations * 100)
 
         # Derive value function
         for d in range(self.env.dealer_values_count):
