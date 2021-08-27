@@ -3,6 +3,7 @@ from environment import *
 from tqdm import tqdm
 import logging
 
+
 class Linear_Approximation_Agent:
     def __init__(self, environment, n0, mlambda, gamma):
         self.n0 = float(n0)
@@ -25,6 +26,9 @@ class Linear_Approximation_Agent:
 
         # Initialise the value function to zero.
         self.V = np.zeros((self.env.dealer_values_count, self.env.player_values_count))
+        self.Q = np.zeros(
+            (self.env.dealer_values_count, self.env.player_values_count, 2)
+        )
 
         self.count_wins = 0
         self.iterations = 0
@@ -112,22 +116,37 @@ class Linear_Approximation_Agent:
 
             self.iterations += 1
             if r == 1:
-                self.wins += 1
+                self.count_wins += 1
 
         print(float(self.count_wins) / self.iterations * 100)
 
         # Derive value function
-        for i in range(self.env.dealer_values_count):
-            for j in range(self.env.player_values_count):
+        for i in range(1, self.env.dealer_values_count + 1):
+            for j in range(1, self.env.player_values_count + 1):
                 s = self.env.get_state(i, j)
-                self.V[i][j] = Actions.as_int(self.get_optimal_action(s))
+                self.V[i - 1][j - 1] = np.max(
+                    [
+                        np.dot(self.compute_phi(s, Actions.hit), self.theta),
+                        np.dot(self.compute_phi(s, Actions.stick), self.theta),
+                    ]
+                )
+
+        # Derive policy
+
+        for i in range(1, self.env.dealer_values_count + 1):
+            for j in range(1, self.env.player_values_count + 1):
+                s = self.env.get_state(i, j)
+                self.Q[i-1, j-1] = [
+                    np.dot(self.compute_phi(s, Actions.hit), self.theta),
+                    np.dot(self.compute_phi(s, Actions.stick), self.theta),
+                ]
 
     def plot_frame(self, ax):
         def get_stat_val(x, y):
             return self.V[x, y]
 
-        X = np.arange(0, self.env.dealer_values_count, 1)
-        Y = np.arange(0, self.env.player_values_count, 1)
+        X = np.arange(1, self.env.dealer_values_count, 1)
+        Y = np.arange(1, self.env.player_values_count, 1)
         X, Y = np.meshgrid(X, Y)
         Z = get_stat_val(X, Y)
         surf = ax.plot_surface(
