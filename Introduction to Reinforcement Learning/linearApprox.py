@@ -3,8 +3,6 @@ from environment import *
 from tqdm import tqdm
 import logging
 
-#make feature a vector
-
 class Linear_Approximation_Agent:
     def __init__(self, environment, n0, mlambda, gamma):
         self.n0 = float(n0)
@@ -15,14 +13,13 @@ class Linear_Approximation_Agent:
         self.dealer_features = [[1, 4], [4, 7], [7, 10]]
         self.player_features = [[1, 6], [4, 9], [7, 12], [10, 15], [13, 18], [16, 21]]
 
-        self.number_of_parameters = len(self.dealer_features) * len(self.player_features) * 2
-        
+        self.number_of_parameters = (
+            len(self.dealer_features) * len(self.player_features) * 2
+        )
 
         self.theta = np.random.rand(self.number_of_parameters) * 0.1
 
         self.phi = np.zeros(self.number_of_parameters)
-
-        self.Q = np.zeros(self.number_of_parameters)
 
         self.E = np.zeros(self.number_of_parameters)
 
@@ -33,12 +30,12 @@ class Linear_Approximation_Agent:
         self.iterations = 0
 
     def compute_phi(self, s, a):
-        
+
         phi = np.zeros((3, 6, 2), dtype=np.int)
-        
+
         d_features = np.array([x[0] <= s.dealer <= x[1] for x in self.dealer_features])
         p_features = np.array([x[0] <= s.player <= x[1] for x in self.player_features])
-        
+
         for i in np.where(d_features):
             for j in np.where(p_features):
                 phi[i, j, a.value] = 1
@@ -47,7 +44,12 @@ class Linear_Approximation_Agent:
 
     def get_optimal_action(self, state):
         action = Actions.to_action(
-            np.argmax([np.dot(self.compute_phi(state, Actions.hit), self.theta), np.dot(self.compute_phi(state, Actions.stick), self.theta)])
+            np.argmax(
+                [
+                    np.dot(self.compute_phi(state, Actions.hit), self.theta),
+                    np.dot(self.compute_phi(state, Actions.stick), self.theta),
+                ]
+            )
         )
         return action
 
@@ -66,8 +68,6 @@ class Linear_Approximation_Agent:
             action = Actions.hit if random.random() < 0.5 else Actions.stick
 
             return action
-    
-
 
     def train(self, iterations, disable_logging=False):
         # Loop episodes
@@ -93,7 +93,8 @@ class Linear_Approximation_Agent:
                 if not s_prime.terminal:
                     # choose next action with epsilon greedy policy
                     a_prime = self.get_action(s_prime)
-                    q_next = np.dot(self.compute_phi(s_prime, a_prime),self.theta)
+                    phi_prime = self.compute_phi(s_prime, a_prime)
+                    q_next = np.dot(phi_prime, self.theta)
                     delta = r + self.gamma * q_next - q
 
                 else:
@@ -102,7 +103,7 @@ class Linear_Approximation_Agent:
                 self.E = self.E + phi
 
                 alpha = 0.01
-                
+
                 self.theta = self.theta + alpha * delta * self.E
                 self.E = self.gamma * self.mlambda * self.E
 
@@ -116,12 +117,10 @@ class Linear_Approximation_Agent:
         print(float(self.count_wins) / self.iterations * 100)
 
         # Derive value function
-        for i in range(1, self.env.dealer_values_count + 1):
-            for j in range(1, self.env.player_values_count + 1):
-                s = self.env.get_state(i,j)
-                self.V[i-1][j-1] = Actions.as_int(self.get_optimal_action(s))
-
-
+        for i in range(self.env.dealer_values_count):
+            for j in range(self.env.player_values_count):
+                s = self.env.get_state(i, j)
+                self.V[i][j] = Actions.as_int(self.get_optimal_action(s))
 
     def plot_frame(self, ax):
         def get_stat_val(x, y):
