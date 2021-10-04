@@ -1,5 +1,6 @@
 # OnlineLearning
-Collection of Online Courses / Resources for Data Science & Machine Learning
+Collection of Online Courses for Data Science & Machine Learning, with notes / homework assignments
+
 Courses ordered by personal preference
 
 ## Machine Learning
