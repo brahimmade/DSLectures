@@ -70,6 +70,19 @@ We would like to perform multi-class classification task, so we set bothf,g=σ,t
 
 a)  If you want to train this network, what do you need to change in the equa-tions of (b), (c) and (d), assuming we are using the same MSE loss function.
 
+
+- b) Output of g changes to $\sigma (W^{(2)\intercal}(W^{(1)\intercal} x + b^{(1)})^+ + b^{(2)})$
+- d) $\frac{\delta \hat{y}}{\delta z_3} = \sigma^{'}(W^{(2)\intercal}(W^{(1)\intercal} x + b^{(1)})^+ + b^{(2)})$
+
+
 (b)  Now you think you can do a better job by using a $Binary \ Cross \ Entropy$ (BCE) loss function $\ell_{BCE}(\hat{y},y)=\frac{1}{K}\sum_{i=1}^{K} −[y_i log(\hat{y_i})+(1−y_i) log(1−\hat{y_i})]$. What do you need to change in the equations of (b), (c) and (d)?
 
+- b) Loss changes
+- c) Chain rule still applies
+- d)$\frac{\delta \ell}{\delta \hat{y}} =\frac{\hat{y} - y}{\hat{y}(1-\hat{y})}$
+
 (c)  Things are getting better.  You realize that not all intermediate hidden activations need to be binary (or soft version of binary).  You decide to use $f(·)=(·)^+$ but keep $g$ as σ. Explain why this choice of $f$ can be beneficial for training a (deeper) network.
+
+- Using sigmoid function can lead to vanishing gradients
+- ReLU is not saturated, no max value
+- Function is very fast to compute
