@@ -1,3 +1,4 @@
+from os import RTLD_NOW
 import torch
 
 class MLP:
@@ -44,33 +45,79 @@ class MLP:
             x: tensor shape (batch_size, linear_1_in_features)
         """
         # TODO: Implement the forward function
-
-        x = torch.matmul(x,torch.t(self.parameters['W1'])) + self.parameters['b1']
+        self.cache['x']=x
+        l1 = torch.matmul(x,torch.t(self.parameters['W1'])) + self.parameters['b1']
+        self.cache['l1'] = l1
         if self.f_function == "relu":
             m = torch.nn.ReLU()
-            x = m(x)
+            f = m(l1)
         elif self.f_function == "sigmoid":
             m = torch.nn.Sigmoid()
-            x = m(x)
-        x = torch.matmul(x,torch.t(self.parameters['W2'])) + self.parameters['b2']
+            f = m(l1)
+        elif self.f_function == "identity":
+            f = l1
+        self.cache['f'] = f
+        l2 = torch.matmul(f,torch.t(self.parameters['W2'])) + self.parameters['b2']
+        self.cache['l2'] = l2
         if self.g_function == "relu":
             m = torch.nn.ReLU()
-            x = m(x)
+            g = m(l2)
         elif self.g_function == "sigmoid":
             m = torch.nn.Sigmoid()
-            x = m(x)
-
-        return x
+            g = m(l2)
+        elif self.g_function == "identity":
+            g = l2
+        self.cache['g'] = g
+        return g
     
     def backward(self, dJdy_hat):
         """
         Args:
             dJdy_hat: The gradient tensor of shape (batch_size, linear_2_out_features)
-        """
-        self.grads['dJdW1'] = dJdy_hat
-        self.grads['dJdb1'] = dJdy_hat
-        self.grads['dJdW2'] = dJdy_hat
-        self.grads['dJdb2'] = dJdy_hat
+        """ 
+        def relu_grad(inp):
+            # grad of relu with respect to input activations
+            return (inp>0).float()
+        dfdl1 = relu_grad(self.cache['l1'])
+
+        dgdl2 = self.parameters['W2']
+        dl1dw1 = self.cache['x']
+        dl2df = self.cache['f']
+
+        def mse_grad(inp, targ): 
+            # grad of loss with respect to output of previous layer
+            inp.g = 2. * (inp.squeeze() - targ).unsqueeze(-1) / inp.shape[0]
+
+        def relu_grad(inp, out):
+            # grad of relu with respect to input activations
+            inp.g = (inp>0).float() * out.g
+
+        def lin_grad(inp, out, w, b):
+            # grad of matmul with respect to input
+            inp.g = out.g @ w.t()
+            w.g = inp.t() @ out.g
+            b.g = out.g.sum(0)
+
+        def forward_and_backward(inp, targ):
+            # forward pass:
+            l1 = inp @ w1 + b1
+            
+            out = l2 @ w2 + b2
+            l2 = relu(l1)
+            
+            # backward pass:
+            mse_grad(out, targ)
+            lin_grad(l2, out, w2, b2)
+            relu_grad(l1, l2)
+            lin_grad(inp, l1, w1, b1)
+
+
+        self.grads['dJdW2'] = torch.matmul(torch.t(dJdy_hat),dl2df)
+        self.grads['dJdb2'] = torch.sum(dJdy_hat,axis=0)
+        self.grads['dJdb1'] = torch.sum(torch.matmul(torch.t(dfdl1),dJdy_hat @ dgdl2),axis=0)
+        self.grads['dJdW1'] = torch.matmul(torch.matmul((torch.matmul(dJdy_hat,dgdl2)),torch.t(dfdl1)),dl1dw1)
+        
+       
 
     
     def clear_grad_and_cache(self):
@@ -89,8 +136,8 @@ def mse_loss(y, y_hat):
         dJdy_hat: The gradient tensor of shape (batch_size, linear_2_out_features)
     """
     diff = y_hat - y
-    loss = torch.sum(torch.square(diff))
-    dJdy_hat = 2.0 * (diff)
+    loss = torch.mean(torch.square(diff))
+    dJdy_hat = torch.mul(2.0, diff) / (diff.shape[0] * diff.shape[1])
 
     return loss, dJdy_hat
 
@@ -108,14 +155,3 @@ def bce_loss(y, y_hat):
     pass
 
     # return loss, dJdy_hat
-
-
-
-
-
-
-
-
-
-
-
