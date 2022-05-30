@@ -1,31 +1,18 @@
 # OnlineLearning
-Collection of Online Courses / Resources 
+Collection of Online Courses for Data Science & Machine Learning, with notes / homework assignments
 
-## Applied Mathematics
-
-### Computational Linear Algebra for Coders (fast.ai)
-- Course Website: https://github.com/fastai/numerical-linear-algebra/blob/master/README.md
-- Summary: Numerical linear algebra course, to our knowledge, to be completely centered around practical applications and to use cutting edge algorithms and tools, including PyTorch, Numba, and randomized SVD
+Courses ordered by personal preference
 
 ## Machine Learning
+| Course Name                              | Publisher      | Status      | Url                                                                                       |
+|------------------------------------------|----------------|-------------|-------------------------------------------------------------------------------------------|
+| Practical Deep Learning for Coders       | fast.ai        | Done        | https://course.fast.ai                                                                    |
+| Yann LeCun’s Deep Learning Course at CDS | NYU            | Doing       | https://cds.nyu.edu/deep-learning/                                                        |
+| Introduction to Reinforcement Learning   | UCL / DeepMind | Done        | https://deepmind.com/learning-resources/-introduction-reinforcement-learning-david-silver |
+| CS229 - Machine Learning                 | Stanford       | Done        | https://see.stanford.edu/Course/CS229 |
+## Applied Mathematics
+| Course Name                              | Publisher      | Status      | Url                                                                                       |
+|------------------------------------------|----------------|-------------|-------------------------------------------------------------------------------------------|
+| Computational Linear Algebra for Coders  | fast.ai        | Done        | https://github.com/fastai/numerical-linear-algebra/blob/master/README.md                  |
+| Mathematical Tools for Data Science      | NYU            | Not Started | https://cds.nyu.edu/math-tools/                                                           |
 
-### Practical Deep Learning for Coders (fast.ai)
-- Course Website: https://course.fast.ai
-- Summary: Deep Learning for Coders with fastai and PyTorch: AI Applications Without a PhD - the book and the course
-
-### CS229 - Machine Learning (Stanford)
-- Course Website: https://see.stanford.edu/Course/CS229
-- Summary: This course provides a broad introduction to machine learning and statistical pattern recognition.
-
-## Blogs
-- [OpenAI blog](https://openai.com/blog/)
-- [Google AI blog](https://blog.google/technology/ai/)
-- [MIT AI news](https://news.mit.edu/topic/artificial-intelligence2)
-
-## Podcasts
-
-### Data Skeptic
-https://dataskeptic.com
-
-### Talking Machines
-https://www.thetalkingmachines.com
