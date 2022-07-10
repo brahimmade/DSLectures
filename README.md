@@ -14,9 +14,10 @@ Curated list of high quality ml / ai courses with video lectures / attempts at c
 | Practical Deep Learning for Coders | Michigan  | https://web.eecs.umich.edu/~justincj/teaching/eecs498/WI2022/ | https://bit.ly/3Iu28ej |
 
 ## Natural Language Processing
-| Course Name                                    | Publisher | Course Website                                                | Lecture Playlist       |
-| ---------------------------------------------- | --------- | ------------------------------------------------------------- | ---------------------- |
-| Natural Language Processing with Deep Learning | Stanford  | https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1214/ | https://bit.ly/3Iu28ej |
+| Course Name                                       | Publisher | Course Website                                                | Lecture Playlist       |
+| ------------------------------------------------- | --------- | ------------------------------------------------------------- | ---------------------- |
+| Natural Language Processing with Deep Learning    | Stanford  | https://web.stanford.edu/class/archive/cs/cs224n/cs224n.1214/ | https://bit.ly/3Iu28ej |
+| A Code-First Intro to Natural Language Processing | fast.ai   | https://github.com/fastai/course-nlp                          | https://bit.ly/3NVtPhd |
 
 ## Reinforcement Learning
 | Course Name                                | Publisher      | Course Website                                                                         | Lecture Playlist       |
