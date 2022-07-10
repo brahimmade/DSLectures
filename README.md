@@ -2,7 +2,6 @@
 Curated list of high quality ml / ai courses with video lectures / attempts at courses
 
 ## ML / AI
----
 
 ### Practical Deep Learning for Coders (*fast.ai*)
  Deep Learning for Coders with fastai and PyTorch: AI Applications Without a PhD - the book and the course
@@ -16,7 +15,7 @@ This course concerns the latest techniques in deep learning and representation l
 - Lecture Playlist: http://bit.ly/DLSP21-YouTube
 
 ## Computer Vision
----
+
 ### Deep Learning for Computer Vision (*Michigan*)
 This course is a deep dive into details of neural-network based deep learning methods for computer vision.
 - Course Website: https://web.eecs.umich.edu/~justincj/teaching/eecs498/WI2022/
@@ -35,14 +34,14 @@ This course is a deep dive into details of neural-network based deep learning me
 
 
 ## Reinforcement Learning
----
+
 ### Reinforcement Learning Lecture Series 2021 (*UCL / DeepMind*)
 The fundamentals of reinforcement learning and planning in sequential decision problems and modern deep RL algorithms
 - Course Website: https://www.deepmind.com/learning-resources/reinforcement-learning-lecture-series-2021
 - Lecture Playlist: https://bit.ly/3bRbPHl
 
 ## Applied Mathematics
----
+
 ### Mathematical Tools for Data Science (*NYU*)
 This course provides a rigorous introduction to mathematical tools for data science drawn from linear algebra, Fourier analysis, probability theory, and convex optimization.
 - Course Website: https://cds.nyu.edu/math-tools/                             
