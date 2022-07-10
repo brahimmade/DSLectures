@@ -1,4 +1,4 @@
-# OnlineLearning
+# AwesomeAICourses
 Curated list of high quality ml / ai courses with video lectures / attempts at courses
 
 ## ML / AI
